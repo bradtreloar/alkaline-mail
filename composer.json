@@ -15,5 +15,7 @@
             "email": "brad@treloardigital.com.au"
         }
     ],
-    "require": {}
+    "require": {
+        "bradtreloar/html_php_mail": "^1.0"
+    }
 }
