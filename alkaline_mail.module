@@ -1,0 +1,36 @@
+<?php
+
+use Drupal\Component\Render\FormattableMarkup;
+
+/**
+ * Implement hook_mail_alter()
+ *
+ * Transforms mail messages into HTML.
+ */
+function alkaline_mail_mail_alter(&$message) {
+
+  if (isset($message['id']) && $message['id'] == 'contact_page_mail') {
+    // Get the \Drupal\contact\Entity\Message
+    $contact_message = $message['params']['contact_message'];
+
+    // Get fields.
+    $variables = [
+      'sender_name' => $contact_message->getSenderName(),
+      'sender_mail' => $contact_message->getSenderMail(),
+      'sender_phone' => $contact_message->get('field_phone')->getString(),
+      'subject' => $contact_message->getSubject(),
+      'message' => $contact_message->getMessage(),
+    ];
+
+    // Set the MIME type for the message.
+    $message['headers']['Content-Type'] = 'text/html; charset=UTF-8; format=flowed; delsp=yes';
+
+    // Replace message body.
+    $template_file = drupal_get_path('module', 'alkaline_mail') .'/templates/alkaline-mail--contact-page-mail.html.twig';
+    $twig_service = \Drupal::service('twig');
+    $body = $twig_service->loadTemplate($template_file)->render($variables);
+    $message['body'] = [
+      new FormattableMarkup($body, [])
+    ];
+  }
+}
